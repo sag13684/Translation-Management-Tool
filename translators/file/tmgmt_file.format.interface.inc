@@ -19,14 +19,17 @@ interface TMGMTFileFormatInterface {
   /**
    * Validates that the given file is valid and can be imported.
    *
-   * @param $imported_file
+   * @todo this function should NOT return a job. We need a import processor
+   *   instance instead to deal with the import context.
+   *
+   * @param string $imported_file
    *   File path to the file to be imported.
    *
    * @return TMGMTJob
    *   Returns the corresponding translation job entity if the import file is
    *   valid, FALSE otherwise.
    */
-  function validateImport($imported_file);
+  public function validateImport($imported_file);
 
   /**
    * Converts an exported file content back to the translated data.

@@ -60,8 +60,7 @@ class TMGMTFileFormatHTML implements TMGMTFileFormatInterface {
   }
 
   /**
-   *
-   * @param type $imported_file
+   * {@inheritdoc}
    */
   public function validateImport($imported_file) {
     $dom = new DOMDocument();
@@ -84,11 +83,13 @@ class TMGMTFileFormatHTML implements TMGMTFileFormatInterface {
       }
     }
 
-    // Attempt to load job.
+    // Attempt to load the job.
     if (!$job = tmgmt_job_load($meta['JobID'])) {
+      drupal_set_message(t('The imported file job id @file_tjid is not available.', array(
+        '@file_tjid' => $job->tjid,
+      )), 'error');
       return FALSE;
     }
-
 
     // Check language.
     if ($meta['languageSource'] != $job->getTranslator()->mapToRemoteLanguage($job->source_language) ||

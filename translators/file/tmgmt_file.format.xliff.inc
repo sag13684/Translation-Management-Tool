@@ -194,14 +194,15 @@ class TMGMTFileformatXLIFF extends XMLWriter implements TMGMTFileFormatInterface
   }
 
   /**
-   * Validates imported XLIFF file.
-   *
-   * Checks:
-   * - Job ID.
-   * - Target ans source languages
-   * - Content integrity by
+   * {@inheritdoc}
    */
   public function validateImport($imported_file) {
+    // Validates imported XLIFF file.
+    // Checks:
+    // - Job ID
+    // - Target ans source languages
+    // - Content integrity.
+
     $xml = $this->getImportedXML($imported_file);
     // Check if our phase information is there.
     $phase = $xml->xpath("//xliff:phase[@phase-name='extraction']");
@@ -209,27 +210,50 @@ class TMGMTFileformatXLIFF extends XMLWriter implements TMGMTFileFormatInterface
       $phase = reset($phase);
     }
     else {
+      drupal_set_message(t('The imported file is missing required XLIFF phase information.'), 'error');
       return FALSE;
     }
 
-    // Check if the job can be loaded.
-    if (!isset($phase['job-id']) || (!$job = tmgmt_job_load((string) $phase['job-id']))) {
+    // Check if the job has a valid job reference.
+    if (!isset($phase['job-id'])) {
+      drupal_set_message(t('The imported file does not contain a job reference.'), 'error');
       return FALSE;
     }
+
+    // Attempt to load the job if none passed.
+    $job = tmgmt_job_load((int) $phase['job-id']);
+    if (empty($job)) {
+      drupal_set_message(t('The imported file job id @file_tjid is not available.', array(
+        '@file_tjid' => $phase['job-id'],
+      )), 'error');
+      return FALSE;
+    }
+
+    // @todo We use the $job to addMessage in case of failure. However the job
+    //   context is not safe at this point.
 
     // Compare source language.
     if (!isset($xml->file['source-language']) || $job->getTranslator()->mapToRemoteLanguage($job->source_language) != $xml->file['source-language']) {
+      $job->addMessage('The imported file source language @file_language does not match the job source language @job_language.', array(
+        '@file_language' => empty($xml->file['source-language']) ? t('none') : $xml->file['source-language'],
+        '@job_language' => $job->source_language,
+      ), 'error');
       return FALSE;
     }
 
     // Compare target language.
     if (!isset($xml->file['target-language']) || $job->getTranslator()->mapToRemoteLanguage($job->target_language) != $xml->file['target-language']) {
+      $job->addMessage('The imported file target language @file_language does not match the job target language @job_language.', array(
+        '@file_language' => empty($xml->file['target-language']) ? t('none') : $xml->file['target-language'],
+        '@job_language' => $job->target_language,
+      ), 'error');
       return FALSE;
     }
 
     $targets = $this->getImportedTargets($job);
 
     if (empty($targets)) {
+      $job->addMessage('The imported file seems to be missing translation.', 'error');
       return FALSE;
     }
 
