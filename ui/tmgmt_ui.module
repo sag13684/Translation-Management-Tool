@@ -579,7 +579,7 @@ function tmgmt_ui_translation_review_form_defaults($form, &$form_state, TMGMTJob
   $form['info']['source'] = array(
     '#type' => 'item',
     '#title' => t('Source'),
-    '#markup' => l($item->getSourceLabel(), $uri['path'], $uri['options']),
+    '#markup' => !empty($uri) ? l($item->getSourceLabel(), $uri['path'], $uri['options']) : $item->getSourceLabel(),
     '#prefix' => '<div class="tmgmt-ui-source tmgmt-ui-info-item">',
     '#suffix' => '</div>',
   );
