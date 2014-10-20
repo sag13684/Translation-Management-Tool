@@ -122,6 +122,7 @@ function tmgmt_entity_get_translatable_entities($entity_type, $property_conditio
 
   $id_key = $entity_info['entity keys']['id'];
   $query = db_select($entity_info['base table'], 'e');
+  $query->addTag('tmgmt_entity_get_translatable_entities');
   $query->addField('e', $id_key);
 
   // Language neutral entities are not translatable. Filter them out. To do
