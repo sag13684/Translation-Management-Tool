@@ -33,22 +33,28 @@ class TMGMTLocaleSourcePluginController extends TMGMTDefaultSourcePluginControll
     $exists = db_query("SELECT COUNT(lid) FROM {locales_target} WHERE lid = :lid AND language = :language", array(':lid' => $lid, ':language' => $target_language))
       ->fetchField();
 
+    $fields = array(
+      'translation' => $translation,
+    );
+    if (module_exists('l10n_update')) {
+      module_load_include('inc', 'l10n_update');
+      $fields += array(
+        'l10n_status' => L10N_UPDATE_STRING_CUSTOM,
+      );
+    }
+
     // @todo Only singular strings are managed here, we should take care of
     //   plural information of processed string.
     if (!$exists) {
-      $fields = array(
+      $fields += array(
         'lid' => $lid,
         'language' => $target_language,
-        'translation' => $translation,
       );
       db_insert('locales_target')
         ->fields($fields)
         ->execute();
     }
     else {
-      $fields = array(
-         'translation' => $translation,
-      );
       db_update('locales_target')
         ->fields($fields)
         ->condition('lid', $lid)
