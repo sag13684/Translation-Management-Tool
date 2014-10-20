@@ -124,6 +124,13 @@ function tmgmt_entity_get_translatable_entities($entity_type, $property_conditio
   $query = db_select($entity_info['base table'], 'e');
   $query->addField('e', $id_key);
 
+  // Language neutral entities are not translatable. Filter them out. To do
+  // that: join {entity_translation} table, but only records with source column
+  // empty. The {entity_translation}.language will represent the original entity
+  // language in that case.
+  $source_table_alias = $query->leftJoin('entity_translation', NULL, "%alias.entity_type = :entity_type AND %alias.entity_id = e.$id_key AND %alias.source = ''", array(':entity_type' => $entity_type));
+  $query->condition("$source_table_alias.language", LANGUAGE_NONE, '<>');
+
   // Searching for sources with missing translation.
   if (!empty($property_conditions['target_status']) && !empty($property_conditions['target_language']) && in_array($property_conditions['target_language'], $languages)) {
 
