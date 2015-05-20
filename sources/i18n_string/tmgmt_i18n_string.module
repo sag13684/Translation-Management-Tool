@@ -45,6 +45,10 @@ function tmgmt_i18n_string_get_strings($type, $search_label = NULL, $target_lang
   $languages = drupal_map_assoc(array_keys(language_list()));
   $select = db_select('i18n_string', 'i18n_s');
 
+  $select->addTag('tmgmt_sources_search');
+  $select->addMetaData('plugin', 'i18n_string');
+  $select->addMetaData('type', $type);
+
   $select->condition('i18n_s.textgroup', $info['string translation']['textgroup']);
 
   if (!empty($target_language) && in_array($target_language, $languages)) {

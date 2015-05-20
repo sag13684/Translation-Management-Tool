@@ -30,6 +30,10 @@ class TMGMTLocaleSourceUIController extends TMGMTDefaultSourceUIController {
     $select = db_select('locales_source', 'ls')
       ->fields('ls', array('lid', 'source'));
 
+    $select->addTag('tmgmt_sources_search');
+    $select->addMetaData('plugin', 'locale');
+    $select->addMetaData('type', $textgroup);
+
     $select->condition('ls.textgroup', $textgroup);
     if (!empty($search_label)) {
       $select->condition('ls.source', "%$search_label%", 'LIKE');
