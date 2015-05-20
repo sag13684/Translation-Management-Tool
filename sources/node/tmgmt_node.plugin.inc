@@ -70,6 +70,11 @@ class TMGMTNodeSourcePluginController extends TMGMTDefaultSourcePluginController
         $tnode->translation_source = $node;
       }
 
+      // Allow modules and translator plugins to alter, for example in the
+      // case of creating revisions for translated nodes, or altering
+      // properties of the tnode before saving.
+      drupal_alter('tmgmt_before_update_node_translation', $tnode, $node, $job_item);
+
       // Time to put the translated data into the node.
       $data = $job_item->getData();
       // Special case for the node title.
