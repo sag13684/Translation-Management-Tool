@@ -186,7 +186,9 @@ class TMGMTFileformatXLIFF extends XMLWriter implements TMGMTFileFormatInterface
    * {@inheritdoc}
    */
   public function import($imported_file) {
-    $this->getImportedXML($imported_file);
+    if (!$this->getImportedXML($imported_file)) {
+      return FALSE;
+    }
     $phase = $this->importedXML->xpath("//xliff:phase[@phase-name='extraction']");
     $phase = reset($phase);
     $job = tmgmt_job_load((string) $phase['job-id']);
@@ -203,7 +205,10 @@ class TMGMTFileformatXLIFF extends XMLWriter implements TMGMTFileFormatInterface
     // - Target ans source languages
     // - Content integrity.
 
-    $xml = $this->getImportedXML($imported_file);
+    if (!($xml = $this->getImportedXML($imported_file))) {
+      drupal_set_message(t('The imported file is not a valid XML.'), 'error');
+      return FALSE;
+    }
     // Check if our phase information is there.
     $phase = $xml->xpath("//xliff:phase[@phase-name='extraction']");
     if ($phase) {
@@ -294,7 +299,9 @@ class TMGMTFileformatXLIFF extends XMLWriter implements TMGMTFileFormatInterface
       // url encoded due to the temporary://. This is a PHP bug, see
       // https://bugs.php.net/bug.php?id=61469
       $xml_string = file_get_contents($imported_file);
-      $this->importedXML = simplexml_load_string($xml_string);
+      if (!($this->importedXML = simplexml_load_string($xml_string))) {
+        return FALSE;
+      }
       // Register the XLIFF namespace, required for xpath.
       $this->importedXML->registerXPathNamespace('xliff', 'urn:oasis:names:tc:xliff:document:1.2');
     }
