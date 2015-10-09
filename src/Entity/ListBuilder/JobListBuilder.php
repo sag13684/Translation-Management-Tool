@@ -23,19 +23,19 @@ class JobListBuilder extends EntityListBuilder {
     if ($entity->isSubmittable() && $entity->access('submit')) {
       $operations['submit'] = array(
         'url' => $entity->urlInfo()->setOption('query', array('destination' => Url::fromRoute('<current>')->getInternalPath())),
-        'title' => t('submit'),
+        'title' => t('Submit'),
       );
     }
     else {
       $operations['manage'] = array(
         'url' => $entity->urlInfo()->setOption('query', array('destination' => Url::fromRoute('<current>')->getInternalPath())),
-        'title' => t('manage'),
+        'title' => t('Manage'),
       );
     }
     if ($entity->isAbortable() && $entity->access('submit')) {
       $operations['cancel'] = array(
         'url' => $entity->urlInfo('abort-form')->setOption('query', array('destination' => Url::fromRoute('<current>')->getInternalPath())),
-        'title' => t('abort'),
+        'title' => t('Abort'),
       );
     }
     return $operations;
